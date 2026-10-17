@@ -23,6 +23,7 @@
 */
 package org.gms.client.command.commands.gm5;
 
+import lombok.extern.slf4j.Slf4j;
 import org.gms.client.Character;
 import org.gms.client.Client;
 import org.gms.client.command.Command;
@@ -75,9 +76,11 @@ public class DebugCommand extends Command {
                 List<MapObject> monsters = player.getMap().getMapObjectsInRange(player.getPosition(), Double.POSITIVE_INFINITY, Arrays.asList(MapObjectType.MONSTER));
                 for (MapObject monstermo : monsters) {
                     Monster monster = (Monster) monstermo;
-                    Character controller = monster.getController();
-                    player.message(I18nUtil.getMessage("DebugCommand.message4",monster.getName(), monster.getId(), controller != null ? I18nUtil.getMessage("DebugCommand.message5", controller.getName(), monster.isControllerHasAggro(), monster.isControllerKnowsAboutAggro()) : "<none>"));
+                    String text = monster.getName() + " [模板ID:" + monster.getId() + "] [唯一ID:" + monster.getObjectId() + "] 位置(" + monster.getPosition().x + ", " + monster.getPosition().y + ")";
+                    player.message(text);
+                    System.out.println(text);
                 }
+                System.out.println("一共有："+monsters.size()+"只怪");
                 break;
 
             case "packet":

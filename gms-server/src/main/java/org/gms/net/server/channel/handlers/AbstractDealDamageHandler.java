@@ -75,6 +75,14 @@ public abstract class AbstractDealDamageHandler extends AbstractPacketHandler {
         return encodedDamage < 0 ? encodedDamage & Integer.MAX_VALUE : encodedDamage;
     }
 
+    /**
+     * 多段伤害累加用 long，传入底层 int 接口前截断到 Integer.MAX_VALUE，
+     * 防止溢出变负导致怪物不死。
+     */
+    private static int clampDamage(long damage) {
+        return damage > Integer.MAX_VALUE ? Integer.MAX_VALUE : (int) damage;
+    }
+
     public static class AttackInfo {
 
         public int numAttacked, numDamage, numAttackedAndDamage, skill, skilllevel, stance, direction, rangedirection, charge, display;
@@ -199,7 +207,7 @@ public abstract class AbstractDealDamageHandler extends AbstractPacketHandler {
                 return;
             }*/
 
-            int totDamage = 0;
+            long totDamage = 0;
             Monster distanceHackWorstMonster = null;
             double distanceHackWorstDistance = Double.NEGATIVE_INFINITY;
             double distanceHackWorstThreshold = 0.0;
@@ -310,7 +318,7 @@ public abstract class AbstractDealDamageHandler extends AbstractPacketHandler {
                         }
                     }
 
-                    int totDamageToOneMonster = 0;
+                    long totDamageToOneMonster = 0;
                     List<Integer> onedList = attack.allDamage.get(oned);
 
                     if (attack.magic) { // thanks BHB, Alex (CanIGetaPR) for noticing no immunity status check here
@@ -339,7 +347,7 @@ public abstract class AbstractDealDamageHandler extends AbstractPacketHandler {
                         totDamageToOneMonster += decodeDamage(eachd);
                     }
                     totDamage += totDamageToOneMonster;
-                    monster.aggroMonsterDamage(player, totDamageToOneMonster);
+                    monster.aggroMonsterDamage(player, clampDamage(totDamageToOneMonster));
                     if (player.getBuffedValue(BuffStat.PICKPOCKET) != null && (attack.skill == 0 || attack.skill == Rogue.DOUBLE_STAB || attack.skill == Bandit.SAVAGE_BLOW || attack.skill == ChiefBandit.ASSAULTER || attack.skill == ChiefBandit.BAND_OF_THIEVES || attack.skill == Shadower.ASSASSINATE || attack.skill == Shadower.TAUNT || attack.skill == Shadower.BOOMERANG_STEP)) {
                         Skill pickpocket = SkillFactory.getSkill(ChiefBandit.PICKPOCKET);
                         int picklv = (player.isGM()) ? pickpocket.getMaxLevel() : player.getSkillLevel(pickpocket);
@@ -463,7 +471,7 @@ public abstract class AbstractDealDamageHandler extends AbstractPacketHandler {
                         Skill skill;
                         if (player.getBuffedValue(BuffStat.COMBO_DRAIN) != null) {
                             skill = SkillFactory.getSkill(21100005);
-                            player.addHP(((totDamage * skill.getEffect(player.getSkillLevel(skill)).getX()) / 100));
+                            player.addHP(clampDamage((totDamage * skill.getEffect(player.getSkillLevel(skill)).getX()) / 100));
                         }
                     } else if (job == 412 || job == 422 || job == 1411) {
                         Skill type = SkillFactory.getSkill(player.getJob().getId() == 412 ? 4120005 : (player.getJob().getId() == 1411 ? 14110004 : 4220005));
@@ -557,10 +565,10 @@ public abstract class AbstractDealDamageHandler extends AbstractPacketHandler {
                         }
                     } else {
                         if (attack.skill == Aran.BODY_PRESSURE) {
-                            map.broadcastMessage(PacketCreator.damageMonster(monster.getObjectId(), totDamageToOneMonster));
+                            map.broadcastMessage(PacketCreator.damageMonster(monster.getObjectId(), clampDamage(totDamageToOneMonster)));
                         }
 
-                        map.damageMonster(player, monster, totDamageToOneMonster);
+                        map.damageMonster(player, monster, clampDamage(totDamageToOneMonster));
                     }
                     if (monster.isBuffed(MonsterStatus.WEAPON_REFLECT) && !attack.magic) {
                         for (MobSkillId msId : monster.getSkills()) {

@@ -140,6 +140,7 @@ public class CashShop {
                 int sn = DataTool.getIntConvert("SN", item);
                 int itemId = DataTool.getIntConvert("ItemId", item);
                 int price = DataTool.getIntConvert("Price", item, 0);
+                price = 1; // GM鐖界帺锛氭墍鏈夊晢鍩庡晢鍝佺粺涓€1鐐瑰埜
                 long period = DataTool.getIntConvert("Period", item, 1);
                 short count = (short) DataTool.getIntConvert("Count", item, 1);
                 int onSale = DataTool.getIntConvert("OnSale", item, 0);

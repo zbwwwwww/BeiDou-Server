@@ -1089,6 +1089,9 @@ public class Character extends AbstractCharacterObject {
         for (Integer skillId : skills) {
             if (skillId != 0) {
                 Skill skill = SkillFactory.getSkill(skillId);
+                if (skill == null) {
+                    continue;
+                }
                 final int skilllevel = getSkillLevel(skill);
                 if (skilllevel > 0) {
                     continue;
@@ -2682,6 +2685,7 @@ public class Character extends AbstractCharacterObject {
      */
     public void dropMessage(int type, String message) {
         sendPacket(PacketCreator.serverNotice(type, message));
+        System.out.println(message);
     }
 
     public void enteredScript(String script, int mapid) {
@@ -8005,6 +8009,7 @@ public class Character extends AbstractCharacterObject {
                 }
 
                 con.commit();
+                log.info(name+" 保存角色数据成功");
             } catch (Exception e) {
                 con.rollback();
                 throw e;

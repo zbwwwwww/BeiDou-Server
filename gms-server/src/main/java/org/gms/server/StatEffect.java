@@ -1481,7 +1481,9 @@ public class StatEffect {
                         mod = amp.getEffect(ampLevel).getX() / 100.0;
                     }
                 }
-                mpchange -= mpCon * mod;
+                if (!applyfrom.isGM()) {
+                    mpchange -= mpCon * mod;
+                }
                 if (applyfrom.getBuffedValue(BuffStat.INFINITY) != null) {
                     mpchange = 0;
                 } else if (applyfrom.getBuffedValue(BuffStat.CONCENTRATE) != null) {

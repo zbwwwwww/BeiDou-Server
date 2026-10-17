@@ -40,7 +40,7 @@ public class JobCommand extends Command {
         Character player = c.getPlayer();
         if (params.length == 1) {
             int jobid = Integer.parseInt(params[0]);
-            if (jobid < 0 || jobid >= 2200) {
+            if (jobid < 0 || jobid >= 2300) {
                 player.message(I18nUtil.getMessage("JobCommand.message2", jobid));
                 return;
             }
@@ -54,7 +54,7 @@ public class JobCommand extends Command {
             }
             if (victim != null) {
                 int jobid = Integer.parseInt(params[1]);
-                if (jobid < 0 || jobid >= 2200) {
+                if (jobid < 0 || jobid >= 2300) {
                     player.message(I18nUtil.getMessage("JobCommand.message2", jobid));
                     return;
                 }

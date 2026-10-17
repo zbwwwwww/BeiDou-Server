@@ -77,6 +77,10 @@ public final class TakeDamageHandler extends AbstractPacketHandler {
         int mpattack = 0;
         Monster attacker = null;
         final MapleMap map = chr.getMap();
+        if (chr.isGM()) {
+            damage = 0;
+            mpattack = 0;
+        }
         if (damagefrom != -3 && damagefrom != -4) {
             monsteridfrom = p.readInt();
             oid = p.readInt();
