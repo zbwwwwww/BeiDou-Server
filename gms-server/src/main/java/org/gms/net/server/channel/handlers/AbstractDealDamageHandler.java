@@ -187,10 +187,13 @@ public abstract class AbstractDealDamageHandler extends AbstractPacketHandler {
                     }
                 }
 
+                /* 2026-10-18 注释：私服自用，客户端技能 mobCount 自定义放宽，不再拦截
                 if (attack.numAttacked > mobCount) {
                     AutobanFactory.MOB_COUNT.autoban(player, "技能: " + attack.skill + "; Count: " + attack.numAttacked + " Max: " + attackEffect.getMobCount());
+                    log.info("玩家：{},客户端请求的怪物受伤数量：{},大于服务端wz文件里的该技能mobCount:{}，本次请求包被丢弃",player.getName(),attack.numAttacked,mobCount);
                     return;
                 }
+                */
             }
             if (!player.isAlive()) {
                 return;
