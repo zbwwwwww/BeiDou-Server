@@ -447,6 +447,47 @@ public class InventoryManipulator {
         }
     }
 
+    /**
+     * GM 用：整栏批量删除。快照清单 → 内存一次性删完 → 只发 1 个 modifyInventory 包，
+     * 避免逐件删除发 N 个包导致客户端冻结卡掉线（移植自 MXDtestServer GM 菜单系统）。
+     * ⛔ EQUIPPED（身上穿的装备栏）直接 return，绝不脱装。
+     */
+    public static void removeAllItems(Client c, InventoryType type, boolean fromDrop) {
+        if (type == InventoryType.EQUIPPED) {
+            return;
+        }
+        Character chr = c.getPlayer();
+        Inventory inv = chr.getInventory(type);
+        if (inv == null) {
+            return;
+        }
+
+        List<ModifyInventory> mods = new ArrayList<>();
+        inv.lockInventory();
+        try {
+            List<Item> items = new ArrayList<>(inv.list());
+            for (Item item : items) {
+                short slot = item.getPosition();
+                int petid = item.getPetId();
+                if (petid > -1) {
+                    int petIdx = chr.getPetIndex(petid);
+                    if (petIdx > -1) {
+                        Pet pet = chr.getPet(petIdx);
+                        chr.unEquipPet(pet, true);
+                    }
+                }
+                inv.removeItem(slot, item.getQuantity(), false);
+                mods.add(new ModifyInventory(3, item));
+            }
+        } finally {
+            inv.unlockInventory();
+        }
+
+        if (!mods.isEmpty()) {
+            c.sendPacket(PacketCreator.modifyInventory(fromDrop, mods));
+        }
+    }
+
     private static void announceModifyInventory(Client c, Item item, boolean fromDrop, boolean allowZero) {
         if (item.getQuantity() == 0 && !allowZero) {
             c.sendPacket(PacketCreator.modifyInventory(fromDrop, Collections.singletonList(new ModifyInventory(3, item))));

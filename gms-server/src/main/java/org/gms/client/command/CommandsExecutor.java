@@ -232,6 +232,7 @@ public class CommandsExecutor {
     private void registerLv2Commands() {
         levelCommandsCursor = new Pair<>(new ArrayList<String>(), new ArrayList<String>());
 
+        addCommand("run", 2, RunCommand.class);
         addCommand("recharge", 2, RechargeCommand.class);
         addCommand("whereami", 2, WhereaMiCommand.class);
         addCommand("hide", 2, HideCommand.class);

@@ -1838,6 +1838,60 @@ public class Character extends AbstractCharacterObject {
         }
     }
 
+    /**
+     * GM 用：把当前职业（含前置职业）在 Skill.wz 里登记的全部技能直接练到满级。
+     * 走 changeSkillLevel，客户端会收到 updateSkill 包，技能窗口即时刷新。
+     * （移植自 MXDtestServer GM 菜单系统）
+     *
+     * @return 实际练满的技能数量
+     */
+    public int maxJobSkills() {
+        int count = 0;
+        for (int skillId : SkillFactory.getJobSkillIds(this.job.getId())) {
+            Skill skill = SkillFactory.getSkill(skillId);
+            if (skill == null) {
+                continue;
+            }
+            int maxLevel = skill.getMaxLevel();
+            if (maxLevel <= 0 || maxLevel > Byte.MAX_VALUE) {
+                continue;
+            }
+            changeSkillLevel(skill, (byte) maxLevel, maxLevel, -1);
+            count++;
+        }
+        return count;
+    }
+
+    /**
+     * GM 用：安全传送。地图 id 在 wz 里不存在时返回 false，角色原地不动。
+     */
+    public boolean warpTo(int mapId) {
+        if (getMap(mapId, true) == null) {
+            return false;
+        }
+        changeMap(mapId);
+        return true;
+    }
+
+    private int dmgMultiplier = 1;   // GM 伤害倍率（内存态，重登回 ×1）：客户端单段显示封顶 13.33 亿，服务端扣血前放大
+    private boolean noMpCost = true; // 无耗蓝模式，登录默认开启（移植自 MXDtestServer GM 菜单系统）
+
+    public boolean isNoMpCost() {
+        return noMpCost;
+    }
+
+    public void setNoMpCost(boolean v) {
+        this.noMpCost = v;
+    }
+
+    public int getDmgMultiplier() {
+        return dmgMultiplier;
+    }
+
+    public void setDmgMultiplier(int mult) {
+        this.dmgMultiplier = Math.max(1, mult);
+    }
+
     public void changeTab(int tab) {
         this.currentTab = tab;
     }

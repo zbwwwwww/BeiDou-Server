@@ -396,8 +396,13 @@ public class NPCConversationManager extends AbstractPlayerInteraction {
         return getPlayer().getGender();
     }
 
-    public void changeJobById(int a) {
-        getPlayer().changeJob(Job.getById(a));
+    public boolean changeJobById(int a) {
+        Job job = Job.getById(a);
+        if (job == null || job.getId() != a) {
+            return false;
+        }
+        getPlayer().changeJob(job);
+        return true;
     }
 
     public void changeJob(Job job) {
@@ -414,6 +419,23 @@ public class NPCConversationManager extends AbstractPlayerInteraction {
 
     public void resetStats() {
         getPlayer().resetStats();
+    }
+
+    /**
+     * GM 菜单：把当前职业（含前置职业）的全部技能直接练到满级。
+     * （移植自 MXDtestServer GM 菜单系统）
+     *
+     * @return 实际练满的技能数量
+     */
+    public int maxJobSkills() {
+        return getPlayer().maxJobSkills();
+    }
+
+    /**
+     * GM 菜单：安全传送。地图 id 不存在时返回 false，角色原地不动。
+     */
+    public boolean warpToMap(int mapId) {
+        return getPlayer().warpTo(mapId);
     }
 
     public void openShopNPC(int id) {

@@ -38,5 +38,4 @@ CLAUDE.local.md
 # 游戏数据与脚本（体积大，随 Release 包分发，不进 git）
 wz/
 wz-zh-CN/
-scripts/
 scripts-zh-CN/

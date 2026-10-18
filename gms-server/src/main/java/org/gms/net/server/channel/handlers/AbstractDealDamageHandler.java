@@ -346,6 +346,11 @@ public abstract class AbstractDealDamageHandler extends AbstractPacketHandler {
                     for (Integer eachd : onedList) {
                         totDamageToOneMonster += decodeDamage(eachd);
                     }
+                    // GM 伤害倍率（内存态）：客户端单段显示墙内数值不变，服务端扣血前放大实际伤害
+                    long dmgMult = player.getDmgMultiplier();
+                    if (dmgMult > 1) {
+                        totDamageToOneMonster = Math.min(totDamageToOneMonster * dmgMult, Integer.MAX_VALUE);
+                    }
                     totDamage += totDamageToOneMonster;
                     monster.aggroMonsterDamage(player, clampDamage(totDamageToOneMonster));
                     if (player.getBuffedValue(BuffStat.PICKPOCKET) != null && (attack.skill == 0 || attack.skill == Rogue.DOUBLE_STAB || attack.skill == Bandit.SAVAGE_BLOW || attack.skill == ChiefBandit.ASSAULTER || attack.skill == ChiefBandit.BAND_OF_THIEVES || attack.skill == Shadower.ASSASSINATE || attack.skill == Shadower.TAUNT || attack.skill == Shadower.BOOMERANG_STEP)) {

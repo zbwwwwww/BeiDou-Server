@@ -82,7 +82,9 @@ import org.gms.provider.wz.WZFiles;
 import org.gms.server.StatEffect;
 import org.gms.server.life.Element;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class SkillFactory {
@@ -112,6 +114,68 @@ public class SkillFactory {
         }
 
         skills = loadedSkills;
+    }
+
+    /**
+     * 取一个职业的"职业链"——即它从一转一路走到当前职业，每一阶在 Skill.wz 里对应的文件 id。
+     * 只返回 <= jobId 的阶段，避免给低阶职业塞高阶技能。
+     * （移植自 MXDtestServer GM 菜单系统）
+     */
+    public static List<Integer> getJobChain(int jobId) {
+        List<Integer> ret = new ArrayList<>();
+        if (jobId < 100) {  // 初心者这类没技能的
+            return ret;
+        }
+
+        int[] candidates;
+        if (jobId / 1000 == 1) {                                // 骑士团
+            int root = 1000;
+            int branch = jobId - jobId % 100;
+            candidates = new int[]{root, branch, jobId};
+        } else if (jobId / 100 == 21 || jobId / 100 == 22) {     // 战神 / 龙神
+            int root = jobId / 100 * 100;
+            candidates = new int[]{root, root + 10, jobId};
+        } else {                                                 // 冒险家
+            int first = jobId / 100 * 100;
+            int second = first + jobId / 10 % 10 * 10;
+            candidates = new int[]{first, second, second + 1, jobId};
+        }
+
+        for (int c : candidates) {
+            if (c >= 100 && c <= jobId && !ret.contains(c)) {
+                ret.add(c);
+            }
+        }
+        return ret;
+    }
+
+    /**
+     * 列出一个职业（含前置职业）在 Skill.wz 里登记的全部技能 id。
+     * 数据来源与 loadAllSkills() 完全同一份：Skill.wz 下以 jobid 命名的 img 里的 skill 节点。
+     */
+    public static List<Integer> getJobSkillIds(int jobId) {
+        List<Integer> ret = new ArrayList<>();
+        for (int chainJob : getJobChain(jobId)) {
+            Data img = datasource.getData(chainJob + ".img");
+            if (img == null) {
+                continue;
+            }
+            Data skillRoot = img.getChildByPath("skill");
+            if (skillRoot == null) {
+                continue;
+            }
+            for (Data d : skillRoot.getChildren()) {
+                try {
+                    int skillId = Integer.parseInt(d.getName());
+                    if (!ret.contains(skillId)) {
+                        ret.add(skillId);
+                    }
+                } catch (NumberFormatException ignored) {
+                    // info 之类的非技能节点，跳过
+                }
+            }
+        }
+        return ret;
     }
 
     private static Skill loadFromData(int id, Data data) {

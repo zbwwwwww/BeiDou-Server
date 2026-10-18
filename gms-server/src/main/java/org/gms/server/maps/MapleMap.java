@@ -1880,6 +1880,42 @@ public class MapleMap {
         spawnMonster(mob);
     }
 
+    /**
+     * 批量异步召唤怪物：每 100ms 召 3 只，避免一次性发太多 spawn 封包导致客户端断线。
+     * （移植自 MXDtestServer GM 菜单系统）
+     */
+    public void spawnMonsterBatch(final List<Integer> mobIds, final Point pos) {
+        final int BATCH = 3;
+        final long DELAY = 100;
+        final int total = mobIds.size();
+        final int[] idx = {0};
+        final ScheduledFuture<?>[] holder = new ScheduledFuture<?>[1];
+
+        holder[0] = TimerManager.getInstance().register(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    int end = Math.min(idx[0] + BATCH, total);
+                    for (; idx[0] < end; idx[0]++) {
+                        try {
+                            int x = pos.x + 60 + (idx[0] % 12) * 24;
+                            spawnMonsterOnGroundBelow(mobIds.get(idx[0]), x, pos.y);
+                        } catch (Exception e) {
+                            try {
+                                spawnMonsterOnGroundBelow(mobIds.get(idx[0]), pos.x, pos.y);
+                            } catch (Exception e2) {}
+                        }
+                    }
+                    if (idx[0] >= total) {
+                        holder[0].cancel(false);
+                    }
+                } catch (Exception e) {
+                    holder[0].cancel(false);
+                }
+            }
+        }, DELAY, DELAY);
+    }
+
     public void spawnCPQMonster(Monster mob, Point pos, int team) {
         Point spos = new Point(pos.x, pos.y - 1);
         spos = calcPointBelow(spos);
