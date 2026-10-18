@@ -71,3 +71,25 @@ web中所有的图片均需要联网获取，感谢 https://maplestory.io 提供
 # Wiki
 发现很多同学的问题基本在Wiki中都有答案，欢迎大家去看看。另外如果发现Wiki中没有的问题，欢迎提issue，或直接补充。已将Wiki开放为所有人都可以编辑。  
 [Wiki地址](https://github.com/BeiDouMS/BeiDou-Server/wiki)
+
+## 个人维护记录（zbwwwwww fork 新增）
+
+本 fork 在原作者（BeiDouMS）基础上新增/修改以下内容，均为个人测试环境适配，非官方合并，按时间增序排列：
+
+### 1. 魔法伤害倍率增强（2026-10-17）
+- 英文版客户端魔法伤害上限较低，服务端在魔法攻击时额外放大伤害倍率（×1000），绕过英文客户端魔法伤害显示/上限限制
+
+### 2. 启动 banner（2026-10-18）
+- 修改服务端启动 banner 为个人定制内容
+
+### 3. GM 菜单系统（2026-10-18）
+- 移植自 MXDtestServer 的 GM 菜单系统，新增 GM 菜单 NPC 脚本，支持 `!run gm` 唤起 GM 菜单
+- 支持修改职业（含骑士团全职业）、伤害倍率、攻击速度爆发、传送等 GM 操作
+
+### 4. 技能 mobCount 上限校验取消（2026-10-18）
+- 注释服务端 `AbstractDealDamageHandler` 的 mobCount 丢包校验，适配客户端自定义打怪数量（mobCount）
+
+### 5. 技能 img 数值修改工具 skillimg-tools（2026-10-18）
+- 新增 `skillimg-tools` 目录：最小版 MapleLib 编译库 + CLI 工具（read/set/setall）
+- 支持读写技能 img 数值：`attackCount` 段数、`damage` 伤害、`range` 距离、`mobCount` 打怪数等，替代手动 HaRepacker
+- 含工具源码、编译配置与使用说明 README
